@@ -133,3 +133,18 @@ export function createElement<
     }
     return element;
 }
+
+export function closeAllModals() {
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+        modal.classList.remove('modal_active');
+    });
+}
+
+export function addModalCloseEventListener() {
+    const modalContainer = document.getElementById('modal-container');
+    const closeButton = modalContainer.querySelector('.modal__close');
+    closeButton.addEventListener('click', function() {
+        modalContainer.classList.remove('modal_active');
+    });
+}
