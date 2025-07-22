@@ -17,7 +17,4 @@ export class Page extends View<IPage> {
     set catalog(items: HTMLElement[]) {
         this._catalog.replaceChildren(...items);
     }
-
-    protected doRender() {
-    }
 }

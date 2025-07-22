@@ -44,15 +44,15 @@ export type CatalogChangeEvent = {
 export class AppState extends Model<IAppState> {
     catalog: Product[];
     basket: Basket;
-    preview: HTMLElement = document.getElementById('modal-container')
-        .querySelector('.modal__content');
+    preview: string | null;
 
     setCatalog(items: IProduct[]) {
         this.catalog = items.map(item => new Product(item, this.events));
-        this.emitChanges('items:changed', { catalog: this.catalog });
+        this.emitChanges('items:changed', {catalog: this.catalog});
     }
 
-    setPreview() {
-
+    setPreview(item: Product) {
+        this.preview = item.id;
+        this.emitChanges('preview:changed', item);
     }
 }

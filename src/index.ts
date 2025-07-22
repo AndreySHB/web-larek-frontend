@@ -6,7 +6,8 @@ import {ShopAPI} from "./components/ShopApi";
 import {AppState, CatalogChangeEvent, Product} from "./components/AppData";
 import {Page} from "./components/Page";
 import {addModalCloseEventListener, cloneTemplate, closeAllModals, ensureElement} from "./utils/utils";
-import {CatalogCard} from "./components/Card";
+import {CatalogCard, PreviewCard} from "./components/Card";
+import {Modal} from "./components/Modal";
 
 const events = new EventEmitter();
 // Модель данных приложения
@@ -14,6 +15,7 @@ const appData = new AppState({}, events);
 
 // Глобальные контейнеры
 const page = new Page(document.body);
+const modal = new Modal(ensureElement<HTMLElement>('#modal-container'), events);
 
 // Все шаблоны
 const cardCatalogTemplate = ensureElement<HTMLTemplateElement>('#card-catalog');
@@ -34,8 +36,25 @@ events.on<CatalogChangeEvent>('items:changed', () => {
             title: item.title,
             image: item.image,
             category: item.category,
-            price: item.price ?? 666,
+            price: item.price ?? 666
         });
+    });
+});
+
+events.on('card:select', (item: Product) => {
+    appData.setPreview(item);
+});
+
+events.on('preview:changed', (item: Product) => {
+    const card = new PreviewCard(cloneTemplate(cardPreviewTemplate));
+    modal.render({
+        content: card.render({
+            title: item.title,
+            image: item.image,
+            category: item.category,
+            price: item.price ?? 666,
+            description: item.description
+        })
     });
 });
 
