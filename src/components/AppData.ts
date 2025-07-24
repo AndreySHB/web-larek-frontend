@@ -1,5 +1,6 @@
 import {Model} from "./base/Model";
 import {IAppState, IBasket, IProduct} from "../types";
+import {IEvents} from "./base/events";
 
 export class Product extends Model<IProduct> {
     id: string;
@@ -16,7 +17,7 @@ export class Basket extends Model<IBasket> {
     add(id: string): void {
         if (!this.items.has(id)) this.items.set(id, 0);
         this.items.set(id, this.items.get(id)! + 1);
-        this.emitChanges('basket:change', {items: Array.from(this.items.keys())});
+        this.emitChanges('basket:change', Array.from(this.items.keys()));
     }
 
     remove(id: string): void {
@@ -29,7 +30,7 @@ export class Basket extends Model<IBasket> {
                 this.items.delete(id);
             }
         }
-        this.emitChanges('basket:change', {items: Array.from(this.items.keys())});
+        this.emitChanges('basket:change', Array.from(this.items.keys()));
     }
 
     emitChanges(event: string, payload: object | undefined): void {
@@ -46,6 +47,11 @@ export class AppState extends Model<IAppState> {
     basket: Basket;
     preview: string | null;
 
+    constructor(data: Partial<IAppState>, events: IEvents) {
+        super(data, events);
+        this.basket = new Basket({}, events);
+    }
+
     setCatalog(items: IProduct[]) {
         this.catalog = items.map(item => new Product(item, this.events));
         this.emitChanges('items:changed', {catalog: this.catalog});
@@ -54,5 +60,9 @@ export class AppState extends Model<IAppState> {
     setPreview(item: Product) {
         this.preview = item.id;
         this.emitChanges('preview:changed', item);
+    }
+
+    addToBasket(item: Product) {
+        this.basket.add(item.id);
     }
 }

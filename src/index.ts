@@ -46,7 +46,14 @@ events.on('card:select', (item: Product) => {
 });
 
 events.on('preview:changed', (item: Product) => {
-    const card = new PreviewCard(cloneTemplate(cardPreviewTemplate));
+    const card = new PreviewCard(cloneTemplate(cardPreviewTemplate), {
+        onClick: (event) => {
+            event.stopPropagation();
+            event.preventDefault();
+            appData.addToBasket(item);
+            modal.close();
+        }
+    });
     modal.render({
         content: card.render({
             title: item.title,
@@ -56,6 +63,10 @@ events.on('preview:changed', (item: Product) => {
             description: item.description
         })
     });
+});
+
+events.on('basket:change', (ids: string[]) => {
+    page.basketCount=ids.length;
 });
 
 const api = new ShopAPI(API_URL, CDN_URL);
