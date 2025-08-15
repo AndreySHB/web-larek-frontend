@@ -1,6 +1,6 @@
-import {Model} from "./base/Model";
-import {IAppState, IBasket, IProduct} from "../types";
-import {IEvents} from "./base/events";
+import {Model} from "../base/Model";
+import {IAppState, IBasket, IProduct} from "../../types";
+import {IEvents} from "../base/events";
 
 export class Product extends Model<IProduct> {
     id: string;
@@ -13,16 +13,24 @@ export class Product extends Model<IProduct> {
 
 export class Basket extends Model<IBasket> {
     items: Map<string, number> = new Map();
+    totalPrice: number = 0;
+    totalItems: number = 0;
 
-    add(id: string): void {
+    add(product: Product): void {
+        const id = product.id;
         if (!this.items.has(id)) this.items.set(id, 0);
         this.items.set(id, this.items.get(id)! + 1);
-        this.emitChanges('basket:change', Array.from(this.items.keys()));
+        this.totalPrice += product.price;
+        this.totalItems++;
+        this.emitChanges('basket:change', this.totalItems as unknown as object);
     }
 
-    remove(id: string): void {
+    remove(product: Product): void {
+        const id = product.id;
         if (!this.items.has(id)) return;
         if (this.items.get(id)! > 0) {
+            this.totalPrice -= product.price;
+            this.totalItems--;
             const currentCount = this.items.get(id) - 1;
             if (currentCount > 0) {
                 this.items.set(id, currentCount);
@@ -30,7 +38,7 @@ export class Basket extends Model<IBasket> {
                 this.items.delete(id);
             }
         }
-        this.emitChanges('basket:change', Array.from(this.items.keys()));
+        this.emitChanges('basket:change', this.totalItems as unknown as object);
     }
 
     emitChanges(event: string, payload: object | undefined): void {
@@ -38,12 +46,8 @@ export class Basket extends Model<IBasket> {
     }
 }
 
-export type CatalogChangeEvent = {
-    catalog: Product[]
-};
-
 export class AppState extends Model<IAppState> {
-    catalog: Product[];
+    catalog: Map<string, Product>;
     basket: Basket;
     preview: string | null;
 
@@ -53,8 +57,11 @@ export class AppState extends Model<IAppState> {
     }
 
     setCatalog(items: IProduct[]) {
-        this.catalog = items.map(item => new Product(item, this.events));
-        this.emitChanges('items:changed', {catalog: this.catalog});
+        this.catalog = new Map<string, Product>();
+        items.forEach(item => {
+            this.catalog.set(item.id, new Product(item, this.events))
+        })
+        this.emitChanges('items:changed');
     }
 
     setPreview(item: Product) {
@@ -63,6 +70,6 @@ export class AppState extends Model<IAppState> {
     }
 
     addToBasket(item: Product) {
-        this.basket.add(item.id);
+        this.basket.add(item);
     }
 }

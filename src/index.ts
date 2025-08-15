@@ -3,23 +3,27 @@ import './scss/styles.scss';
 import {API_URL, CDN_URL} from "./utils/constants";
 import {EventEmitter} from "./components/base/events";
 import {ShopAPI} from "./components/ShopApi";
-import {AppState, CatalogChangeEvent, Product} from "./components/AppData";
-import {Page} from "./components/Page";
+import {AppState, Product} from "./components/model/AppData";
+import {Page} from "./components/view/Page";
 import {addModalCloseEventListener, cloneTemplate, closeAllModals, ensureElement} from "./utils/utils";
-import {CatalogCard, PreviewCard} from "./components/Card";
-import {Modal} from "./components/Modal";
+import {BasketCard, CatalogCard, PreviewCard} from "./components/view/Card";
+import {Modal} from "./components/view/Modal";
+import {Basket} from "./components/view/Basket";
+
+// Все шаблоны
+const cardCatalogTemplate = ensureElement<HTMLTemplateElement>('#card-catalog');
+const cardPreviewTemplate = ensureElement<HTMLTemplateElement>('#card-preview');
+const basketTemplate = ensureElement<HTMLTemplateElement>('#basket');
+const cardBasketTemplate = ensureElement<HTMLTemplateElement>('#card-basket').content.querySelector('.card') as HTMLElement;
 
 const events = new EventEmitter();
 // Модель данных приложения
 const appData = new AppState({}, events);
 
 // Глобальные контейнеры
-const page = new Page(document.body);
+const page = new Page(document.body, events);
 const modal = new Modal(ensureElement<HTMLElement>('#modal-container'), events);
-
-// Все шаблоны
-const cardCatalogTemplate = ensureElement<HTMLTemplateElement>('#card-catalog');
-const cardPreviewTemplate = ensureElement<HTMLTemplateElement>('#card-preview');
+const basket = new Basket(cloneTemplate(basketTemplate), events);
 
 // Чтобы мониторить все события, для отладки
 events.onAll(({eventName, data}) => {
@@ -27,8 +31,8 @@ events.onAll(({eventName, data}) => {
 })
 
 // Изменились элементы каталога
-events.on<CatalogChangeEvent>('items:changed', () => {
-    page.catalog = appData.catalog.map(item => {
+events.on('items:changed', () => {
+    page.catalog = Array.from(appData.catalog.values()).map(item => {
         const card = new CatalogCard(cloneTemplate(cardCatalogTemplate), {
             onClick: () => events.emit('card:select', item)
         })
@@ -65,8 +69,32 @@ events.on('preview:changed', (item: Product) => {
     });
 });
 
-events.on('basket:change', (ids: string[]) => {
-    page.basketCount=ids.length;
+events.on('basket:change', (totalItems: object) => {
+    page.basketCount = totalItems as unknown as number;
+});
+
+events.on('basket:open', () => {
+    const bids: HTMLElement[] = [];
+    appData.basket.items.forEach((productCount, productKey) => {
+        const bid = new BasketCard(cardBasketTemplate.cloneNode(true) as HTMLElement);
+        const relatedProduct = appData.catalog.get(productKey);
+        bid.render(
+            {
+                category: relatedProduct.category,
+                price: relatedProduct.price * productCount,
+                title: relatedProduct.title,
+                count: productCount
+            });
+        bids.push(bid.getContainer())
+    })
+    modal.render({
+        content: basket.render(
+            {
+                price: appData.basket.totalPrice,
+                items: bids
+            }
+        )
+    });
 });
 
 const api = new ShopAPI(API_URL, CDN_URL);

@@ -1,5 +1,3 @@
-import {EventEmitter} from "../components/base/events";
-
 export interface IProduct {
     id: string;
     title: string;
@@ -16,6 +14,10 @@ export interface IAppState {
 
 export interface IBasket {
     items: Map<string, number>;
+
+    totalPrice: number;
+
+    totalItems: number;
 
     add(id: string): void;
 

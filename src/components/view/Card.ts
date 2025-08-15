@@ -1,5 +1,5 @@
-import {View} from "./base/View";
-import {ensureElement} from "../utils/utils";
+import {View} from "../base/View";
+import {ensureElement} from "../../utils/utils";
 
 interface ICardActions {
     onClick: (event: MouseEvent) => void;
@@ -7,24 +7,21 @@ interface ICardActions {
 
 export interface ICard {
     title: string;
-    image: string;
-    category: string;
+    image?: string;
+    category?: string;
     price: number;
     description?: string;
+    count?: number;
 }
 
 class BaseCard extends View<ICard> {
     protected _title: HTMLElement;
-    protected _image: HTMLImageElement;
-    protected _category: HTMLElement;
     protected _price: HTMLElement;
     protected _button: HTMLButtonElement;
 
     constructor(container: HTMLElement) {
         super(container);
         this._title = ensureElement<HTMLElement>('.card__title', container);
-        this._image = ensureElement<HTMLImageElement>('.card__image', container);
-        this._category = ensureElement<HTMLElement>('.card__category', container);
         this._price = ensureElement<HTMLElement>('.card__price', container);
     }
 
@@ -53,6 +50,21 @@ class BaseCard extends View<ICard> {
     get price(): number {
         return this._price.textContent as unknown as number || 0;
     }
+}
+
+export class CatalogCard extends BaseCard {
+    protected _image: HTMLImageElement;
+    protected _category: HTMLElement;
+    constructor(container: HTMLElement, actions?: ICardActions) {
+        super(container);
+        this._image = ensureElement<HTMLImageElement>('.card__image', container);
+        this._category = ensureElement<HTMLElement>('.card__category', container);
+        this._button = container.querySelector('.gallery__item');
+        super.setActions(container, actions);
+    }
+    set image(value: string) {
+        this.setImage(this._image, value, this.title);
+    }
 
     set category(value: string) {
         this.setText(this._category, value);
@@ -61,26 +73,19 @@ class BaseCard extends View<ICard> {
     get category(): string {
         return this._category.textContent || '';
     }
-
-    set image(value: string) {
-        this.setImage(this._image, value, this.title);
-    }
-}
-
-export class CatalogCard extends BaseCard {
-    constructor(container: HTMLElement, actions?: ICardActions) {
-        super(container);
-        this._button = container.querySelector('.gallery__item');
-        super.setActions(container, actions);
-    }
 }
 
 export class PreviewCard extends BaseCard {
+    protected _image: HTMLImageElement;
     private _description: HTMLElement;
+    protected _category: HTMLElement;
+
 
     constructor(container: HTMLElement, actions?: ICardActions) {
         super(container);
+        this._image = ensureElement<HTMLImageElement>('.card__image', container);
         this._description = ensureElement<HTMLElement>('.card__text', container);
+        this._category = ensureElement<HTMLElement>('.card__category', container);
         this._button = container.querySelector('.card__button');
         super.setActions(container, actions);
     }
@@ -91,5 +96,38 @@ export class PreviewCard extends BaseCard {
 
     get description(): string {
         return this._description.textContent || '';
+    }
+    set image(value: string) {
+        this.setImage(this._image, value, this.title);
+    }
+    set category(value: string) {
+        this.setText(this._category, value);
+    }
+
+    get category(): string {
+        return this._category.textContent || '';
+    }
+}
+
+export class BasketCard extends BaseCard {
+    private _count: HTMLElement;
+
+    constructor(container: HTMLElement, actions?: ICardActions) {
+        super(container);
+        this._count = ensureElement<HTMLElement>('.basket__item-index', container);
+        this._button = container.querySelector('.card__button');
+        super.setActions(container, actions);
+    }
+
+    set count(value: number) {
+        this.setText(this._count, value);
+    }
+
+    get count(): number {
+        return this._count.textContent as unknown as number || 0;
+    }
+
+    getContainer(): HTMLElement {
+        return this.container;
     }
 }

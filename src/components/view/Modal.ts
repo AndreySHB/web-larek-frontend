@@ -1,6 +1,6 @@
-import {View} from "./base/View";
-import {IEvents} from "./base/events";
-import {ensureElement} from "../utils/utils";
+import {View} from "../base/View";
+import {IEvents} from "../base/events";
+import {ensureElement} from "../../utils/utils";
 
 interface IModalData {
     content: HTMLElement;
