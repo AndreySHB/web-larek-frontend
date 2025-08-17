@@ -5,7 +5,7 @@ import {EventEmitter} from "./components/base/events";
 import {ShopAPI} from "./components/ShopApi";
 import {AppState, Product} from "./components/model/AppData";
 import {Page} from "./components/view/Page";
-import {addModalCloseEventListener, cloneTemplate, closeAllModals, ensureElement} from "./utils/utils";
+import {addModalCloseEventListener, cloneTemplate, closeAllModals, createElement, ensureElement} from "./utils/utils";
 import {BasketCard, CatalogCard, PreviewCard} from "./components/view/Card";
 import {Modal} from "./components/view/Modal";
 import {Basket} from "./components/view/Basket";
@@ -76,13 +76,41 @@ events.on('basket:change', (totalItems: object) => {
 events.on('basket:open', () => {
     const bids: HTMLElement[] = [];
     appData.basket.items.forEach((productCount, productKey) => {
-        const bid = new BasketCard(cardBasketTemplate.cloneNode(true) as HTMLElement);
-        const relatedProduct = appData.catalog.get(productKey);
+        const catalogProduct = appData.catalog.get(productKey);
+        const bid = new BasketCard(cardBasketTemplate.cloneNode(true) as HTMLElement,
+            {
+                onClick: (event) => {
+                    event.stopPropagation();
+                    event.preventDefault();
+                    const target = event.target as HTMLElement;
+                    const basket = target.closest('.basket');
+                    const reducingBid = target.closest('.card');
+                    const countElement = reducingBid.querySelector('.basket__item-index');
+                    const currentCount = countElement.textContent as unknown as number;
+                    const totalBidPriceElement = reducingBid.querySelector('.card__price');
+                    const totalBidPriceText = totalBidPriceElement.textContent;
+                    if (currentCount > 1) {
+                        countElement.textContent = currentCount - 1 as unknown as string;
+                        totalBidPriceElement.textContent = totalBidPriceText.replace(' синапсов', '') as unknown as number
+                        - catalogProduct.price as unknown as string + ' синапсов';
+                    } else {
+                        reducingBid.remove();
+                    }
+                    appData.basket.remove(catalogProduct)
+                    const basketPriceElement = basket.querySelector('.basket__price');
+                    basketPriceElement.textContent = appData.basket.totalPrice as unknown as string;
+                    if (appData.basket.totalItems === 0) {
+                        basket.querySelector('.basket__list').replaceChildren(createElement<HTMLParagraphElement>('p', {
+                            textContent: 'Корзина пуста'
+                        }));
+                    }
+                }
+            });
         bid.render(
             {
-                category: relatedProduct.category,
-                price: relatedProduct.price * productCount,
-                title: relatedProduct.title,
+                category: catalogProduct.category,
+                price: catalogProduct.price * productCount,
+                title: catalogProduct.title,
                 count: productCount
             });
         bids.push(bid.getContainer())
