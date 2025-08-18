@@ -8,8 +8,10 @@ export interface IProduct {
 }
 
 export interface IAppState {
-    catalog: IProduct[];
-    basket: IBasket[];
+    catalog: Map<string, IProduct>;
+    basket: IBasket;
+    setCatalog(items: IProduct[]): void;
+    setPreview(item: IProduct): void;
 }
 
 export interface IBasket {
@@ -19,7 +21,9 @@ export interface IBasket {
 
     totalItems: number;
 
-    add(id: string): void;
+    add(product: IProduct): void;
 
-    remove(id: string): void;
+    remove(product: IProduct): void;
+
+    get(product: IProduct): number;
 }

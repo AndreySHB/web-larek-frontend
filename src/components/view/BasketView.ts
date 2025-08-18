@@ -7,7 +7,7 @@ interface IBasketView {
     price: number;
 }
 
-export class Basket extends View<IBasketView> {
+export class BasketView extends View<IBasketView> {
     protected _list: HTMLElement;
     protected _price: HTMLElement;
 
@@ -16,12 +16,11 @@ export class Basket extends View<IBasketView> {
 
         this._list = ensureElement<HTMLElement>('.basket__list', this.container);
         this._price = this.container.querySelector('.basket__price');
-
         this.items = [];
     }
 
     set items(items: HTMLElement[]) {
-        if (items.length) {
+        if (items && items.length) {
             this._list.replaceChildren(...items);
         } else {
             this._list.replaceChildren(createElement<HTMLParagraphElement>('p', {
