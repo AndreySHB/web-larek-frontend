@@ -24,7 +24,7 @@ const appState = new AppState({}, events);
 // Глобальные контейнеры
 const page = new Page(document.body, events);
 const modal = new Modal(ensureElement<HTMLElement>('#modal-container'), events);
-const basketView = new BasketView(cloneTemplate(basketTemplate), events);
+const basketView = new BasketView(cloneTemplate(basketTemplate));
 
 // Чтобы мониторить все события, для отладки
 events.onAll(({eventName, data}) => {
