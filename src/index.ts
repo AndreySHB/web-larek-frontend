@@ -10,12 +10,14 @@ import {BasketCard, CatalogCard, PreviewCard} from "./components/view/Card";
 import {Modal} from "./components/view/Modal";
 import {BasketView} from "./components/view/BasketView";
 import {Product} from "./components/model/Product";
+import {OrderForm} from "./components/view/OrderForm";
 
 // Все шаблоны
 const cardCatalogTemplate = ensureElement<HTMLTemplateElement>('#card-catalog');
 const cardPreviewTemplate = ensureElement<HTMLTemplateElement>('#card-preview');
 const basketTemplate = ensureElement<HTMLTemplateElement>('#basket');
-const cardBasketTemplate = ensureElement<HTMLTemplateElement>('#card-basket').content.querySelector('.card') as HTMLElement;
+const cardBasketTemplate = ensureElement<HTMLTemplateElement>('#card-basket');
+const orderTemplate = ensureElement<HTMLTemplateElement>('#order');
 
 const events = new EventEmitter();
 // Модель данных приложения
@@ -24,7 +26,8 @@ const appState = new AppState({}, events);
 // Глобальные контейнеры
 const page = new Page(document.body, events);
 const modal = new Modal(ensureElement<HTMLElement>('#modal-container'), events);
-const basketView = new BasketView(cloneTemplate(basketTemplate));
+const basketView = new BasketView(cloneTemplate(basketTemplate), events);
+const orderForm = new OrderForm(cloneTemplate(orderTemplate), events);
 
 // Чтобы мониторить все события, для отладки
 events.onAll(({eventName, data}) => {
@@ -78,7 +81,7 @@ events.on('basket:open', () => {
     const bids: HTMLElement[] = [];
     appState.basket.items.forEach((productCount, productKey) => {
         const targetProduct = appState.catalog.get(productKey);
-        const bid = new BasketCard(cardBasketTemplate.cloneNode(true) as HTMLElement,
+        const bid = new BasketCard(cloneTemplate(cardBasketTemplate),
             {
                 onClick: (event) => {
                     event.stopPropagation();
@@ -108,7 +111,7 @@ events.on('basket:open', () => {
                 title: targetProduct.title,
                 count: productCount
             });
-        bids.push(bid.getContainer())
+        bids.push(bid.render())
     })
     modal.render({
         content: basketView.render(
@@ -117,6 +120,12 @@ events.on('basket:open', () => {
                 items: bids
             }
         )
+    });
+});
+
+events.on('order', () => {
+    modal.render({
+        content: orderForm.render()
     });
 });
 

@@ -126,8 +126,4 @@ export class BasketCard extends BaseCard {
     get count(): number {
         return this._count.textContent as unknown as number || 0;
     }
-
-    getContainer(): HTMLElement {
-        return this.container;
-    }
 }
