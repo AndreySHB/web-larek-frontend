@@ -26,4 +26,6 @@ export interface IBasket {
     remove(product: IProduct): void;
 
     get(product: IProduct): number;
+
+    clear(): void;
 }

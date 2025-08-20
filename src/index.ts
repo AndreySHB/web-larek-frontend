@@ -11,6 +11,8 @@ import {Modal} from "./components/view/Modal";
 import {BasketView} from "./components/view/BasketView";
 import {Product} from "./components/model/Product";
 import {OrderForm} from "./components/view/OrderForm";
+import {ContactForm} from "./components/view/ContactForm";
+import {FinishForm} from "./components/view/FinishForm";
 
 // Все шаблоны
 const cardCatalogTemplate = ensureElement<HTMLTemplateElement>('#card-catalog');
@@ -18,6 +20,8 @@ const cardPreviewTemplate = ensureElement<HTMLTemplateElement>('#card-preview');
 const basketTemplate = ensureElement<HTMLTemplateElement>('#basket');
 const cardBasketTemplate = ensureElement<HTMLTemplateElement>('#card-basket');
 const orderTemplate = ensureElement<HTMLTemplateElement>('#order');
+const contactTemplate = ensureElement<HTMLTemplateElement>('#contacts');
+const finishTemplate = ensureElement<HTMLTemplateElement>('#success');
 
 const events = new EventEmitter();
 // Модель данных приложения
@@ -28,6 +32,8 @@ const page = new Page(document.body, events);
 const modal = new Modal(ensureElement<HTMLElement>('#modal-container'), events);
 const basketView = new BasketView(cloneTemplate(basketTemplate), events);
 const orderForm = new OrderForm(cloneTemplate(orderTemplate), events);
+const contactForm = new ContactForm(cloneTemplate(contactTemplate), events);
+const finishFormForm = new FinishForm(cloneTemplate(finishTemplate));
 
 // Чтобы мониторить все события, для отладки
 events.onAll(({eventName, data}) => {
@@ -123,11 +129,28 @@ events.on('basket:open', () => {
     });
 });
 
-events.on('order', () => {
+events.on('order:start', () => {
     modal.render({
         content: orderForm.render()
     });
 });
+
+events.on('order:contacts', () => {
+    modal.render({
+        content: contactForm.render()
+    });
+});
+
+events.on('order:finish', () => {
+    const description = 'Списано ' + appState.basket.totalPrice +  ' синапсов';
+    finishFormForm.setDescription(description);
+    modal.render({
+        content: finishFormForm.render()
+    });
+    appState.basket.clear();
+});
+
+
 
 const api = new ShopAPI(API_URL, CDN_URL);
 

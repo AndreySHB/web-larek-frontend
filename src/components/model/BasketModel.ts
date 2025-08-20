@@ -36,6 +36,13 @@ export class BasketModel extends Model<IBasket> {
         return count ? count : 0;
     }
 
+    clear(): void {
+        this.items = new Map();
+        this.totalItems = 0;
+        this.totalPrice = 0;
+        this.emitChanges('basket:change', this.totalItems as unknown as object);
+    }
+
     emitChanges(event: string, payload: object | undefined): void {
         this.events.emit(event, payload)
     }

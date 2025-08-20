@@ -19,7 +19,7 @@ export class BasketView extends View<IBasketView> {
         this._list = ensureElement<HTMLElement>('.basket__list', this.container);
         this._price = this.container.querySelector('.basket__price');
         this._orderButton = this.container.querySelector('.basket__button');
-        this._orderButton.addEventListener('click', () => events.emit('order'))
+        this._orderButton.addEventListener('click', () => events.emit('order:start'))
         this.items = [];
     }
 
