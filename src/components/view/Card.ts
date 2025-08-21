@@ -15,6 +15,16 @@ export interface ICard {
 }
 
 class BaseCard extends View<ICard> {
+    protected static categoryMap: Map<string,string> = new Map<string, string>;
+
+    static {
+        this.categoryMap.set('софт-скил','card__category_soft');
+        this.categoryMap.set('другое','card__category_other');
+        this.categoryMap.set('дополнительное','card__category_additional');
+        this.categoryMap.set('кнопка','card__category_button');
+        this.categoryMap.set('хард-скил','card__category_hard');
+    }
+
     protected _title: HTMLElement;
     protected _price: HTMLElement;
     protected _button: HTMLButtonElement;
@@ -68,6 +78,7 @@ export class CatalogCard extends BaseCard {
 
     set category(value: string) {
         this.setText(this._category, value);
+        this._category.classList.add(BaseCard.categoryMap.get(value));
     }
 
     get category(): string {
@@ -102,6 +113,7 @@ export class PreviewCard extends BaseCard {
     }
     set category(value: string) {
         this.setText(this._category, value);
+        this._category.classList.add(BaseCard.categoryMap.get(value));
     }
 
     get category(): string {
