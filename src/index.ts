@@ -61,7 +61,7 @@ events.on('items:changed', () => {
             title: item.title,
             image: item.image,
             category: item.category,
-            price: item.price ?? 666
+            price: item.price ?? 0
         });
     });
 });
@@ -84,7 +84,7 @@ events.on('preview:changed', (item: Product) => {
             title: item.title,
             image: item.image,
             category: item.category,
-            price: item.price ?? 666,
+            price: item.price ?? 0,
             description: item.description
         })
     });

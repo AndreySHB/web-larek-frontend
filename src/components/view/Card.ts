@@ -15,14 +15,14 @@ export interface ICard {
 }
 
 class BaseCard extends View<ICard> {
-    protected static categoryMap: Map<string,string> = new Map<string, string>;
+    protected static categoryMap: Map<string, string> = new Map<string, string>;
 
     static {
-        this.categoryMap.set('софт-скил','card__category_soft');
-        this.categoryMap.set('другое','card__category_other');
-        this.categoryMap.set('дополнительное','card__category_additional');
-        this.categoryMap.set('кнопка','card__category_button');
-        this.categoryMap.set('хард-скил','card__category_hard');
+        this.categoryMap.set('софт-скил', 'card__category_soft');
+        this.categoryMap.set('другое', 'card__category_other');
+        this.categoryMap.set('дополнительное', 'card__category_additional');
+        this.categoryMap.set('кнопка', 'card__category_button');
+        this.categoryMap.set('хард-скил', 'card__category_hard');
     }
 
     protected _title: HTMLElement;
@@ -65,6 +65,7 @@ class BaseCard extends View<ICard> {
 export class CatalogCard extends BaseCard {
     protected _image: HTMLImageElement;
     protected _category: HTMLElement;
+
     constructor(container: HTMLElement, actions?: ICardActions) {
         super(container);
         this._image = ensureElement<HTMLImageElement>('.card__image', container);
@@ -72,6 +73,7 @@ export class CatalogCard extends BaseCard {
         this._button = container.querySelector('.gallery__item');
         super.setActions(container, actions);
     }
+
     set image(value: string) {
         this.setImage(this._image, value, this.title);
     }
@@ -108,9 +110,11 @@ export class PreviewCard extends BaseCard {
     get description(): string {
         return this._description.textContent || '';
     }
+
     set image(value: string) {
         this.setImage(this._image, value, this.title);
     }
+
     set category(value: string) {
         this.setText(this._category, value);
         this._category.classList.add(BaseCard.categoryMap.get(value));
@@ -118,6 +122,13 @@ export class PreviewCard extends BaseCard {
 
     get category(): string {
         return this._category.textContent || '';
+    }
+
+    set price(value: number) {
+        if (value < 1) {
+            this.setDisabled(this._button, true);
+        }
+        this.setText(this._price, value + ' синапсов');
     }
 }
 
