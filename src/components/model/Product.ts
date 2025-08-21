@@ -8,4 +8,12 @@ export class Product extends Model<IProduct> {
     image: string;
     category: string;
     price: number;
+
+    equals(other: IProduct): boolean {
+        return this.id === other.id;
+    }
+
+    hashCode(): string {
+        return this.id;
+    }
 }

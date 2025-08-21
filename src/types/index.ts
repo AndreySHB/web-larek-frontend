@@ -5,21 +5,21 @@ export interface IProduct {
     image: string;
     category: string;
     price: number;
+    equals(other: IProduct): boolean;
+    hashCode(): string;
 }
 
 export interface IAppState {
     catalog: Map<string, IProduct>;
     basket: IBasket;
+
     setCatalog(items: IProduct[]): void;
+
     setPreview(item: IProduct): void;
 }
 
 export interface IBasket {
-    items: Map<string, number>;
-
-    totalPrice: number;
-
-    totalItems: number;
+    items: Map<IProduct, number>;
 
     add(product: IProduct): void;
 
@@ -27,5 +27,23 @@ export interface IBasket {
 
     get(product: IProduct): number;
 
+    getTotalItems(): number;
+
+    getTotalPrice(): number;
+
     clear(): void;
 }
+
+export interface IEmailPhoneOrderForm {
+    email: string;
+    phone: string;
+}
+
+export interface IAddressOrderForm {
+    address: string;
+}
+
+
+export type FormErrorsEmailPhone = Partial<Record<keyof IEmailPhoneOrderForm, string>>;
+
+export type FormErrorsAddress = Partial<Record<keyof IAddressOrderForm, string>>;

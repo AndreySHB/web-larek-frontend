@@ -1,22 +1,20 @@
 import {View} from "../base/View";
-import {EventEmitter} from "../base/events";
-import {closeAllModals} from "../../utils/utils";
 
-interface IFinishFormView {
+interface IFinishModal {
     description: HTMLElement;
     finishButton: HTMLElement;
 }
 
-export class FinishForm extends View<IFinishFormView> {
+export class FinishModal extends View<IFinishModal> {
     protected _description: HTMLElement;
 
     protected _finishButton: HTMLElement;
 
-    constructor(container: HTMLElement) {
+    constructor(container: HTMLElement, onCloseAction: () => void) {
         super(container);
         this._description = container.querySelector('.order-success__description');
         this._finishButton = container.querySelector('.order-success__close');
-        this._finishButton.addEventListener('click', () => closeAllModals())
+        this._finishButton.addEventListener('click', onCloseAction)
     }
 
     setDescription(description: string) {

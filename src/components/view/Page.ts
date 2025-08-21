@@ -4,6 +4,10 @@ import {IEvents} from "../base/events";
 
 interface IPage {
     catalog: HTMLElement[];
+
+    lock(): void;
+
+    unlock(): void;
 }
 
 export class Page extends View<IPage> {
@@ -18,9 +22,9 @@ export class Page extends View<IPage> {
         this._basketCounter = ensureElement<HTMLElement>('.header__basket-counter');
         this._basketOpenButton = ensureElement<HTMLElement>('.header__basket');
         if (this._basketOpenButton) {
-                this._basketOpenButton.addEventListener('click', () => {
-                    events.emit('basket:open');
-                });
+            this._basketOpenButton.addEventListener('click', () => {
+                events.emit('basket:open');
+            });
         }
     }
 
@@ -29,6 +33,18 @@ export class Page extends View<IPage> {
     }
 
     set basketCount(size: number) {
-        this._basketCounter.textContent=String(size);
+        this._basketCounter.textContent = String(size);
+    }
+
+    lock() {
+        const classList = this.container.classList;
+        if (!classList.contains('page__wrapper_locked')) {
+            classList.add('page__wrapper_locked');
+
+        }
+    }
+
+    unlock() {
+        this.container.classList.remove('page__wrapper_locked');
     }
 }

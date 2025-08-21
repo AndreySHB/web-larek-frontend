@@ -2,48 +2,44 @@ import {Model} from "../base/Model";
 import {IBasket, IProduct} from "../../types";
 
 export class BasketModel extends Model<IBasket> {
-    items: Map<string, number> = new Map();
-    totalPrice = 0;
-    totalItems = 0;
+    items: Map<IProduct, number> = new Map();
 
     add(product: IProduct): void {
-        const id = product.id;
-        if (!this.items.has(id)) this.items.set(id, 0);
-        this.items.set(id, this.items.get(id)! + 1);
-        this.totalPrice += product.price;
-        this.totalItems++;
-        this.emitChanges('basket:change', this.totalItems as unknown as object);
+        if (!this.items.has(product)) this.items.set(product, 0);
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.items.set(product, this.items.get(product)! + 1);
+        this.emitChanges('basket:change', {});
     }
 
     remove(product: IProduct): void {
-        const id = product.id;
-        if (!this.items.has(id)) return;
-        if (this.items.get(id)! > 0) {
-            this.totalPrice -= product.price;
-            this.totalItems--;
-            const currentCount = this.items.get(id) - 1;
+        if (!this.items.has(product)) return;
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        if (this.items.get(product)! > 0) {
+            const currentCount = this.items.get(product) - 1;
             if (currentCount > 0) {
-                this.items.set(id, currentCount);
+                this.items.set(product, currentCount);
             } else {
-                this.items.delete(id);
+                this.items.delete(product);
             }
         }
-        this.emitChanges('basket:change', this.totalItems as unknown as object);
+        this.emitChanges('basket:change', {});
     }
 
     get(product: IProduct): number {
-        const count = this.items.get(product.id);
+        const count = this.items.get(product);
         return count ? count : 0;
+    }
+
+    getTotalItems(): number {
+        return Array.from(this.items.values()).reduce((acc, value) => acc + value, 0);
+    }
+
+    getTotalPrice(): number {
+        return Array.from(this.items.entries()).reduce((acc, entry) => acc + entry[0].price * entry[1], 0);
     }
 
     clear(): void {
         this.items = new Map();
-        this.totalItems = 0;
-        this.totalPrice = 0;
-        this.emitChanges('basket:change', this.totalItems as unknown as object);
-    }
-
-    emitChanges(event: string, payload: object | undefined): void {
-        this.events.emit(event, payload)
+        this.emitChanges('basket:change', {});
     }
 }
