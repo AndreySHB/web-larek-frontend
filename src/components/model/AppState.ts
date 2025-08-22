@@ -17,6 +17,7 @@ export class AppState extends Model<IAppState> {
         address: '',
         email: '',
         phone: '',
+        payment : 'online'
     };
     formErrorsEmailPhone: FormErrorsEmailPhone = {};
 

@@ -1,5 +1,5 @@
-import { Api, ApiListResponse } from './base/api';
-import {IProduct} from "../types";
+import {Api, ApiListResponse} from './base/api';
+import {IOrderResult, IProduct, PaymentData} from "../types";
 
 export interface IShopAPI {
     getProducts: () => Promise<IProduct[]>;
@@ -20,6 +20,12 @@ export class ShopAPI extends Api implements IShopAPI {
                 ...item,
                 image: this.cdn + item.image
             }))
+        );
+    }
+
+    order(data: PaymentData): Promise<IOrderResult> {
+        return this.post('/order', data).then(
+            (data: IOrderResult) => data
         );
     }
 }

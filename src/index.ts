@@ -38,6 +38,15 @@ const orderAddressForm = new OrderAddressForm(cloneTemplate(orderTemplate), even
 const orderContactForm = new OrderContactForm(cloneTemplate(contactTemplate), events);
 const orderFinishForm = new FinishModal(cloneTemplate(finishTemplate), () => modal.close());
 
+const api = new ShopAPI(API_URL, CDN_URL);
+
+// Получаем лоты с сервера
+api.getProducts()
+    .then(appState.setCatalog.bind(appState))
+    .catch(err => {
+        console.error(err);
+    });
+
 // Чтобы мониторить все события, для отладки
 events.onAll(({eventName, data}) => {
     console.log(eventName, data);
@@ -183,6 +192,30 @@ events.on('formErrorsAddress:change', (errors: Partial<IAddressOrderForm>) => {
     orderAddressForm.errors = address ? address : '';
 });
 
+events.on('order:onlinePayment', () => {
+    appState.order.payment = 'online';
+});
+
+events.on('order:offlinePayment', () => {
+    appState.order.payment = 'offline';
+});
+
+events.on('order:pay', () => {
+    const paymentData = {
+        payment: appState.order.payment,
+        email: appState.order.email,
+        phone: appState.order.phone,
+        address: appState.order.address,
+        total: basket.getTotalPrice(),
+        items: basket.getFlatItems()
+    }
+    api.order(paymentData)
+        .then(() => events.emit('order:finish'))
+        .catch(err => {
+            console.error(err);
+        });
+});
+
 events.on('order:finish', () => {
     const description = 'Списано ' + basket.getTotalPrice() + ' синапсов';
     orderFinishForm.setDescription(description);
@@ -191,15 +224,6 @@ events.on('order:finish', () => {
     });
     basket.clear();
 });
-
-const api = new ShopAPI(API_URL, CDN_URL);
-
-// Получаем лоты с сервера
-api.getProducts()
-    .then(appState.setCatalog.bind(appState))
-    .catch(err => {
-        console.error(err);
-    });
 
 closeAllModals();
 addModalCloseEventListener();

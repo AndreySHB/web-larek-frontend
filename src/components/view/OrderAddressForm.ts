@@ -12,11 +12,13 @@ export class OrderAddressForm extends BaseForm<IAddressOrderForm> {
         this._onlineButton.addEventListener('click', () => {
             this.toggleClass(this._onlineButton, 'selected', true);
             this._offlineButton.classList.remove('selected');
+            events.emit("order:onlinePayment");
         });
         this._offlineButton = container.querySelector('.button_offline');
         this._offlineButton.addEventListener('click', () => {
             this.toggleClass(this._offlineButton, 'selected', true);
             this._onlineButton.classList.remove('selected');
+            events.emit("order:offlinePayment");
         });
         this._submit.addEventListener('click', () => events.emit('order:contacts'));
         this.setInitialState();

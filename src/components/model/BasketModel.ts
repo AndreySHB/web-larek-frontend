@@ -42,4 +42,16 @@ export class BasketModel extends Model<IBasket> {
         this.items = new Map();
         this.emitChanges('basket:change', {});
     }
+
+    getFlatItems(): string[] {
+        const flatItems: string[] = [];
+        Array.from(this.items.entries()).forEach((entry) => {
+            const prod = entry[0];
+            const count = entry[1];
+            for (let i = 0; i < count; i++) {
+                flatItems.push(prod.id);
+            }
+        })
+        return flatItems;
+    }
 }

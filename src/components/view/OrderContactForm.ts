@@ -6,7 +6,7 @@ import {IEvents} from "../base/events";
 export class OrderContactForm extends BaseForm<IEmailPhoneOrderForm> {
     constructor(container: HTMLFormElement, events: IEvents) {
         super(container, events);
-        this._submit.addEventListener('click', () => events.emit('order:finish'));
+        this._submit.addEventListener('click', () => events.emit('order:pay'));
     }
 
     set phone(value: string) {
